@@ -278,7 +278,7 @@
         h("div", { className: "p-4 flex flex-col gap-3 text-sm" },
           h("div", { className: "grid grid-cols-2 gap-3" },
             h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Session ID"), h("span", { className: "font-mono text-xs break-all" }, session.id)),
-            h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Status"), h(Badge, { variant: session.is_active ? "default" : "outline", className: "text-xs mt-0.5", className: cn("text-xs mt-0.5", session.is_active && "bg-green-500/20 text-green-400 border-green-500/30") }, session.is_active ? "Active" : "Ended")),
+            h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Status"), h(Badge, { variant: session.is_active ? "default" : "outline", className: cn("text-xs mt-0.5", session.is_active && "bg-green-500/20 text-green-400 border-green-500/30") }, session.is_active ? "Active" : "Ended")),
             h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Source"), h("span", { className: "font-mono text-xs" }, session.source || "cli")),
             h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Model"), h("span", { className: "font-mono text-xs" }, session.model ? session.model.split("/").pop() : "—")),
             h("div", null, h("span", { className: "text-xs text-muted-foreground block" }, "Messages"), h("span", { className: "font-mono text-xs" }, session.message_count || 0)),
@@ -708,7 +708,7 @@
         )
       ),
 
-      // Tab navigation
+      // Tab navigation — each content renders only when active (deferred data fetching)
       h(Tabs, { value: activeTab, onValueChange: setActiveTab, className: "w-full" },
         h(TabsList, { className: "mb-4" },
           h(TabsTrigger, { value: "overview", className: "text-xs" }, "Overview"),
@@ -718,54 +718,43 @@
         ),
 
         // ── Overview Tab ──────────────────────────────────────────────────────
-        h("div", { value: "overview", className: "space-y-4" },
-          activeTab === "overview" && h("div", null,
-            // Metrics row + health radar
-            h("div", { className: "grid gap-4 lg:grid-cols-3" },
-              // Left: status + metrics
-              h("div", { className: "flex flex-col gap-4" },
-                h(StatusCard),
-                h(UsageCard)
+        activeTab === "overview" && h("div", { className: "space-y-4" },
+          h("div", { className: "grid gap-4 lg:grid-cols-3" },
+            h("div", { className: "flex flex-col gap-4" },
+              h(StatusCard),
+              h(UsageCard)
+            ),
+            h("div", { className: "flex flex-col gap-4" },
+              h(Card, null,
+                h(CardHeader, null, h(CardTitle, { className: "text-base" }, "Health Radar")),
+                h(CardContent, { className: "flex items-center gap-4" },
+                  h(HealthRadar, { status: null }),
+                  h(SkillsCard)
+                )
               ),
-              // Right: health radar + skills + cron
-              h("div", { className: "flex flex-col gap-4" },
-                h(Card, null,
-                  h(CardHeader, null, h(CardTitle, { className: "text-base" }, "Health Radar")),
-                  h(CardContent, { className: "flex items-center gap-4" },
-                    h(HealthRadar, { status: null }),
-                    h(SkillsCard)
-                  )
-                ),
-                h(CronCard)
-              )
+              h(CronCard)
             )
           )
         ),
 
         // ── Sessions Tab ───────────────────────────────────────────────────────
-        h("div", { value: "sessions", className: "space-y-4" },
-          activeTab === "sessions" && h("div", null,
-            h(SessionsCard)
-          )
+        activeTab === "sessions" && h("div", { className: "space-y-4" },
+          h(SessionsCard)
         ),
 
         // ── Ops Tab ───────────────────────────────────────────────────────────
-        h("div", { value: "ops", className: "space-y-4" },
-          activeTab === "ops" && h("div", null,
-            h("div", { className: "grid gap-4 lg:grid-cols-2" },
-              h(ConfigCard),
-              h(ActivityTimeline)
-            )
+        activeTab === "ops" && h("div", { className: "space-y-4" },
+          h("div", { className: "grid gap-4 lg:grid-cols-2" },
+            h(ConfigCard),
+            h(ActivityTimeline)
           )
         ),
 
         // ── Notes Tab ─────────────────────────────────────────────────────────
-        h("div", { value: "notes", className: "space-y-4" },
-          activeTab === "notes" && h("div", null,
-            h("div", { className: "grid gap-4 lg:grid-cols-2" },
-              h(NotesCard),
-              h(SkillsBrowserCard)
-            )
+        activeTab === "notes" && h("div", { className: "space-y-4" },
+          h("div", { className: "grid gap-4 lg:grid-cols-2" },
+            h(NotesCard),
+            h(SkillsBrowserCard)
           )
         )
       )
