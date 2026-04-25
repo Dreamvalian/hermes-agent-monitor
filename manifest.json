@@ -3,7 +3,7 @@
   "label": "Agent Monitor",
   "description": "Real-time Hermes Agent monitoring — sessions, skills, cron, system health, and analytics in one dashboard",
   "icon": "Activity",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "tab": {
     "path": "/agent-monitor",
     "position": "end"

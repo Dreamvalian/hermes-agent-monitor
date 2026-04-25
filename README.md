@@ -2,40 +2,49 @@
 
 A comprehensive real-time monitoring dashboard plugin for the Hermes Agent web interface.
 
-![Agent Monitor](https://img.shields.io/badge/version-1.0.0-blue) ![Hermes](https://img.shields.io/badge/Hermes%20Dashboard-v2.0+-00d4aa)
+```
+┌─ Agent Monitor ───────────────────────────────────────────────────────┐
+│ Overview │ Sessions │ Ops │ Notes                                      │
+│                                                                       │
+│  ┌─ System Status ──────────┐  ┌─ Health Radar ─────────────────────┐│
+│  │ ● Gateway Online  v2.x  │  │      ╱╲                             ││
+│  │ Active: 3 sessions      │  │    ╱  ╲   Gateway ──●              ││
+│  │ Platforms: discord      │  │   ╱ ●  ╲  Sessions ─●               ││
+│  └─────────────────────────┘  │  ╱──────╲                            ││
+│                               │   Health  95/100                     ││
+│  ┌─ Usage (7 days) ───────┐  └──────────────────────────────┬───────┤│
+│  │ Sessions │  Est Cost  │  │  ┌─ Skills Analytics (7d) ────┐│       ││
+│  │   142    │  $0.2847   │  │  │ Total Loads: 1,247         ││       ││
+│  │ Input    │  Output    │  │  │ ████████████ api-int       ││       ││
+│  │  2.4M   │   5.1M     │  │  │ ██████████ git-op         ││       ││
+│  │ ▁▂▃▅▆▇█▇▆▅▃▂▁       │  │  │ ████████   deploy         ││       ││
+│  └───────────────────────┘  └──────────────────────────────┴───────┘│
+│                                                                       │
+│  ┌─ Recent Sessions ────────────────────┐  ┌─ Cron Jobs ──────────┐│
+│  │ ● sess_abc123   active   12 msgs    │  │ ● Morning Brief  6AM ││
+│  │ ● sess_xyz789   ended    8 msgs     │  │ ● Evening Rev  8PM  ││
+│  └──────────────────────────────────────┘  └──────────────────────┘│
+└───────────────────────────────────────────────────────────────────────┘
+```
 
 ## Features
 
 **4-Tab Dashboard:**
-- **Overview** — System status (gateway health, platform connections, version), 7-day usage analytics, recent sessions, and cron job summary
-- **Sessions** — Live view of all Hermes sessions with message counts, model info, and active status
-- **Skills** — Skills browser with 7-day analytics (load counts, top skills bar chart, distinct skills used)
-- **Cron** — All scheduled cron jobs with schedule display, last run time, and enabled/disabled status
 
-**Built with Hermes Plugin SDK:**
-- Plain IIFE JavaScript — no build step required
-- Uses `window.__HERMES_PLUGIN_SDK__` for React, hooks, and Hermes API
-- Auto-discovers via the dashboard plugin system
+| Tab | Features |
+|-----|----------|
+| **Overview** | Health radar (SVG), metrics row, 7-day usage chart, skills analytics, cron overview |
+| **Sessions** | Full session list (20), click-to-expand session detail drawer with token counts, message previews |
+| **Ops** | Config snapshot with YAML preview, activity timeline with manual refresh + plugin rescan |
+| **Notes** | Operator notes textarea + checklist, skills browser with enabled/disabled sections |
 
-## Screenshots
-
-```
-┌─ Agent Monitor ──────────────────────────────────────────┐
-│ Overview | Sessions | Skills | Cron                      │
-│                                                         │
-│ ┌─ System Status ─────┐  ┌─ Usage (7 days) ──────────┐ │
-│ │ ● Gateway Online     │  │ Sessions: 142  API: 1.2k │ │
-│ │ v2.14.2             │  │ Input: 2.4M tokens        │ │
-│ │ Active: 3 sessions   │  │ Est. Cost: $0.2847        │ │
-│ └──────────────────────┘  └────────────────────────────┘ │
-│                                                         │
-│ ┌─ Recent Sessions ─────┐  ┌─ Cron Jobs ───────────────┐ │
-│ │ ● sess_abc123 active  │  │ ● Morning Briefing  6AM   │ │
-│ │   cli/gpt-4o  12 msgs│  │ ● Evening Review    8PM    │ │
-│ │ ● sess_xyz789 ended   │  │ ○ Weekly Doctor    Sun    │ │
-│ └──────────────────────┘  └────────────────────────────┘ │
-└──────────────────────────────────────────────────────────┘
-```
+**All live data — no mocks:**
+- `api.getStatus()` — gateway health, version, platforms
+- `api.getSessions(20)` — session list with metadata
+- `api.getAnalytics(7)` — 7-day usage, costs, skills analytics
+- `api.getCronJobs()` — all scheduled jobs with last-run times
+- `api.getSkills()` — full skills registry
+- `fetchJSON("/api/dashboard/plugins/rescan")` — live plugin rescan
 
 ## Installation
 
@@ -43,46 +52,43 @@ A comprehensive real-time monitoring dashboard plugin for the Hermes Agent web i
 # Copy plugin to your Hermes plugins directory
 cp -r agent-monitor ~/.hermes/plugins/agent-monitor
 
-# Restart the dashboard or trigger a plugin rescan
-# The plugin will appear as a new "Agent Monitor" tab
+# Select "Agent Monitor" from the dashboard tab bar
 ```
 
-## Plugin Structure
+## Screenshots
+
+The dashboard requires Discord OAuth. To preview:
+1. Install and run `hermes dashboard`
+2. Authenticate via Discord
+3. Select the **Agent Monitor** tab
+
+## Architecture
 
 ```
 agent-monitor/
-├── manifest.json          # Plugin manifest (name, label, tab config)
+├── manifest.json          # name, label, tab config, entry point
 └── dist/
-    └── index.js           # Plain IIFE bundle — no build step
+    └── index.js           # Plain IIFE — ~39KB, no build step, no dependencies
 ```
+
+**SDK usage:** `window.__HERMES_PLUGIN_SDK__` — React, hooks, Hermes API client, shadcn/ui components
 
 ## Theme Pairing
 
-This plugin is designed to pair with the **Cyberdeck** theme (`cyberdeck.yaml`) for the full neon cyberpunk cockpit experience. The Cyberdeck theme provides:
-- Hot pink (`#ff00ff`) + electric cyan (`#00ffff`) on void black
-- Orbitron + Share Tech Mono typography
-- Cockpit layout variant with sidebar rail
-- Animated neon glow effects and CRT scanlines
+Designed for the **Cyberdeck** theme (`cyberdeck.yaml`):
+- Void black + hot magenta + electric cyan
+- Cockpit layout with sidebar rail
+- CRT scanlines, perspective grid floor, neon glow animations
+- Space Grotesk + JetBrains Mono typography
 
-See [`../cyberdeck-theme/`](./cyberdeck-theme/) for the paired theme.
+## Demo Output
 
-## API Endpoints Used
-
-| Endpoint | Data |
-|----------|------|
-| `GET /api/status` | Gateway health, version, active sessions |
-| `GET /api/sessions` | Session list with metadata |
-| `GET /api/analytics/usage` | 7-day usage, skills, costs |
-| `GET /api/cron/jobs` | Cron job list |
-| `GET /api/skills` | Skills registry |
-| `GET /api/logs` | Recent error logs |
-
-## Tech Stack
-
-- **React** via Hermes Plugin SDK (`window.__HERMES_PLUGIN_SDK__`)
-- **shadcn/ui** components (Card, Badge, Button, Tabs)
-- **Hermes API** client (`api.getStatus()`, `api.getSessions()`, etc.)
-- Plain IIFE — no bundler, no dependencies to install
+```
+┌─ Agent Monitor ───────────────────────────────────────────────────────┐
+│ Overview │ Sessions │ Ops │ Notes                                      │
+│  Health: 95/100 ●   Sessions: 3 active   Cron: 4 jobs (3 enabled)    │
+└───────────────────────────────────────────────────────────────────────┘
+```
 
 ## License
 
